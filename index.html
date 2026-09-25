@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Security - Escudo Conductual</title>
+    <style>
+        :root {
+            --primary: #0a192f;
+            --secondary: #64ffda;
+            --text-light: #ccd6f6;
+            --text-dark: #8892b0;
+            --bg-dark: #020c1b;
+            --danger: #ff4b4b;
+            --warning: #ffb86c;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        header {
+            text-align: center;
+            padding: 3rem 1rem;
+            background-color: var(--bg-dark);
+            border-bottom: 2px solid var(--secondary);
+        }
+        header h1 {
+            color: var(--secondary);
+            font-size: 2.8rem;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        header p {
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            max-width: 800px;
+            margin: 1rem auto 0;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Sección de Problema y Costos */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .card {
+            background-color: rgba(2, 12, 27, 0.7);
+            padding: 2.5rem;
+            border-radius: 10px;
+            border-top: 4px solid var(--secondary);
+            box-shadow: 0 10px 30px -15px rgba(0,0,0,0.7);
+        }
+        .card.danger-card {
+            border-top: 4px solid var(--danger);
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .danger-text { color: var(--danger); }
+        .success-text { color: var(--secondary); }
+        
+        /* Estilos de la tabla de costos */
+        .cost-comparison {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            background: #112240;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        .cost-item { text-align: center; width: 45%; }
+        .cost-item.old { border-right: 2px dashed var(--text-dark); }
+        .cost-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+            margin: 1rem 0;
+        }
+        
+        /* Animaciones del Bot */
+        .bot-animation-container {
+            background: #020c1b;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: monospace;
+            height: 150px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 1.5rem;
+        }
+        .bot-header {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.5rem;
+        }
+        .bot-typing {
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: var(--secondary);
+            animation: blink 1s step-end infinite;
+        }
+        
+        /* Clases para la inyección rápida del bot */
+        .fast-inject {
+            color: var(--danger);
+            opacity: 0;
+            animation: injectData 4s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes injectData {
+            0% { opacity: 0; content: ""; }
+            10% { opacity: 1; text-shadow: 0 0 5px var(--danger); }
+            15% { opacity: 1; }
+            20% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* Estilos del MVP Interactivo */
+        .mvp-section {
+            background-color: #112240;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px -15px rgba(0,0,0,0.7);
+        }
+        .form-container {
+            max-width: 450px;
+            margin: 2rem auto;
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 8px;
+            color: #333;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e6ed;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .btn {
+            background-color: var(--primary);
+            color: var(--secondary);
+            border: none;
+            padding: 1.2rem;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            background-color: #1a365d;
+            box-shadow: 0 0 15px rgba(100, 255, 218, 0.4);
+        }
+        
+        /* Modales de Fricción */
+        .alert-box {
+            display: none;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-top: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        #modal-friccion {
+            background-color: rgba(255, 75, 75, 0.1);
+            border: 2px solid var(--danger);
+            color: #d32f2f;
+        }
+        #modal-exito {
+            background-color: rgba(100, 255, 218, 0.15);
+            border: 2px solid #00bfa5;
+            color: #00897b;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Nexus Security</h1>
+        <p>Escudo Conductual: Pre-filtro Antifraude de Fricción Adaptativa para Originación de Crédito</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="grid-2">
+            <!-- Tarjeta: El Problema (Animación y Contexto) -->
+            <div class="card danger-card">
+                <h2 class="danger-text">⚠️ El Punto Ciego Crítico</h2>
+                <p>El fraude digital concentró un volumen de 10,714 millones de pesos, representando el 72% de los recursos reclamados ante la banca comercial[cite: 1].</p>
+                <p>Las defensas perimetrales fallan ante los ataques sofisticados. Un bot programado con proxies residenciales logrará burlar el WAF perimetral[cite: 1].</p>
+                
+                <!-- Animación CSS del Bot -->
+                <div class="bot-animation-container">
+                    <div class="bot-header">
+                        [Ruta de Ataque] Ejecutando Script de Inyección Masiva...
+                    </div>
+                    <div>
+                        <span style="color: var(--text-dark);">[Humano] Tecleando: </span>
+                        <span class="bot-typing">J-o-n-a-t-h-a-n<span class="cursor"></span></span>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <span style="color: var(--text-dark);">[Bot Proxy] Inyección: </span>
+                        <!-- La clase fast-inject simula el copy-paste instantáneo de 15 campos -->
+                        <span class="fast-inject">{CURP: "ABCD123456EFG", RFC: "ABCD123456", Nombre: "Juan", Tel: "5551234567"} [INYECCIÓN 0.1ms]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta: Impacto Financiero y Costos -->
+            <div class="card">
+                <h2 class="success-text">💰 Optimización del Embudo</h2>
+                <p>Al no contar con un escudo en la capa de aplicación, la Fintech termina evaluando identidades que carecían de validez desde el inicio de la sesión[cite: 1].</p>
+                
+                <div class="cost-comparison">
+                    <div class="cost-item old">
+                        <span style="color: var(--text-dark); font-size: 0.9rem;">KYC Tradicional (Biometría)</span>
+                        <span class="cost-value danger-text">$0.33 USD</span>
+                        <span style="font-size: 0.8rem; color: var(--text-dark);">Costo base por intento[cite: 1]</span>
+                    </div>
+                    <div class="cost-item">
+                        <span style="color: var(--text-dark); font-size: 0.9rem;">Escudo Conductual (SaaS)</span>
+                        <span class="cost-value success-text">$0.05 USD</span>
+                        <span style="font-size: 0.8rem; color: var(--text-dark);">Por evaluación conductual[cite: 1]</span>
+                    </div>
+                </div>
+                
+                <ul style="margin-top: 1.5rem; color: var(--text-dark); font-size: 0.95rem;">
+                    <li>El sistema clasifica el nivel de riesgo antes de que la institución consuma presupuesto en APIs biométricas[cite: 1].</li>
+                    <li>Representa un ahorro masivo directo frente al costo comercial tradicional[cite: 1].</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sección del MVP Interactivo -->
+        <div class="mvp-section">
+            <h2 class="success-text">Demostración del MVP: Fricción Adaptativa</h2>
+            <p style="font-size: 1.1rem; max-width: 800px; margin: 0 auto;">
+                El sistema no evalúa <strong>qué</strong> datos se ingresan, sino estrictamente <strong>cómo</strong> se ingresan[cite: 1]. 
+                Captura un vector multidimensional que aísla la intención humana genuina de la automatización maliciosa[cite: 1].
+            </p>
+            <p style="color: var(--warning); margin-top: 1rem;">
+                <strong>Instrucciones para el Jurado:</strong> Intente pegar (Ctrl+V) información en los campos para simular un bot. Luego, intente teclear manualmente.
+            </p>
+            
+            <div class="form-container">
+                <form id="credito-form">
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo</label>
+                        <input type="text" id="nombre" placeholder="Ej. Ana García" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="curp">Clave Única de Registro (CURP)</label>
+                        <input type="text" id="curp" placeholder="Ingrese los 18 caracteres" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="rfc">Registro Federal (RFC)</label>
+                        <input type="text" id="rfc" placeholder="Ingrese RFC con Homoclave" autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn">Continuar Solicitud</button>
+                </form>
+
+                <!-- Elementos de retroalimentación visual (Alertas) -->
+                <div id="modal-friccion" class="alert-box">
+                    🛑 Riesgo Alto Detectado: Patrón de llenado automatizado.<br><br>
+                    <span style="color: #333; font-weight: normal; font-size: 0.9rem;">
+                        Aplicando Fricción Adaptativa: Se requiere validación secundaria (OTP SMS) para continuar.
+                    </span>
+                </div>
+                <div id="modal-exito" class="alert-box">
+                    ✅ Telemetría Conductual Normal.<br><br>
+                    <span style="color: #333; font-weight: normal; font-size: 0.9rem;">
+                        Identidad humana verificada. Procediendo a validación KYC Biométrica.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Lógica del Escudo Conductual (Prototipo Frontend)
+         * El algoritmo evalúa matemáticamente el comportamiento del usuario.
+         */
+        const form = document.getElementById('credito-form');
+        const inputs = document.querySelectorAll('input');
+        const modalFriccion = document.getElementById('modal-friccion');
+        const modalExito = document.getElementById('modal-exito');
+        
+        let riskScore = 0; // Vector de características simulado
+
+        inputs.forEach(input => {
+            // Detección de uso intensivo del portapapeles (Característica de ataque sintético)
+            input.addEventListener('paste', (e) => {
+                riskScore += 85; 
+                console.warn("[Seguridad] Patrón de inserción masiva detectado. Score:", riskScore);
+            });
+
+            // Detección de cadencia humana
+            input.addEventListener('keydown', (e) => {
+                // En producción esto mediría e.timeStamp entre teclas.
+                // Aquí simulamos que el tecleo humano reduce la sospecha.
+                riskScore -= 2; 
+                if(riskScore < 0) riskScore = 0;
+            });
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Ocultar estados previos
+            modalFriccion.style.display = 'none';
+            modalExito.style.display = 'none';
+
+            // Evaluación de la fricción adaptativa
+            if (riskScore > 60) {
+                // Ante una anomalía, el flujo se desvía temporalmente hacia una validación tradicional de bajo costo[cite: 1]
+                modalFriccion.style.display = 'block';
+                riskScore = 0; // Reseteo para demostración
+            } else {
+                // Flujo sin interrupciones para usuarios humanos
+                modalExito.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
